@@ -92,7 +92,7 @@ def remove_rookie_contracts(year, data, remove=True):
     rookies_2013 = ["Bills", "Jets", "Redskins", "Jaguars", 
                     "Raiders", "Eagles", "Panthers", "Colts", 
                     "Titans", "Vikings", "Texans", "Rams", "49ers",
-                    "Begals", "Browns", "Dolphins"]
+                    "Bengals", "Browns", "Dolphins"]
     rookies_2014 = ["Vikings", "Jaguars", "Titans", "Raiders"
                     "Bills", "Jets", "Redskins", "Buccaneers"
                     "Eagles", "Panthers", "Colts", "Dolphins"]
@@ -114,11 +114,11 @@ def remove_rookie_contracts(year, data, remove=True):
     teams = []
     
     if remove:
-        for ind, row in data_2013.iterrows():
+        for ind, row in data.iterrows():
             if row['Team'] not in rookies[year]:
                 teams.append(row)
     else:
-        for ind, row in data_2013.iterrows():
+        for ind, row in data.iterrows():
             if row['Team'] in rookies[year]:
                 teams.append(row)
         
@@ -127,6 +127,34 @@ def remove_rookie_contracts(year, data, remove=True):
     df = df.append(teams)
     
     return df
+
+def get_offense_only(data):
+    plt.figure()
+    plt.scatter(data['Offense'], data['Wins'])
+    plt.xlabel("Offensive Spending")
+    plt.ylabel("Wins")
+    
+    trend = np.polyfit(data['Offense'], data['Wins'], 1)
+    trendpoly = np.poly1d(trend)
+    
+    plt.plot(data['Offense'], trendpoly(data['Offense']), label="y={:.2f}x+{:.2f}".format(trend[0], trend[1]))
+    plt.legend() 
+    
+    plt.show()
+    
+def get_defense_only(data):
+    plt.figure()
+    plt.scatter(data['Defense'], data['Wins'])
+    plt.xlabel("Defensive Spending")
+    plt.ylabel("Wins")
+    
+    trend = np.polyfit(data['Defense'], data['Wins'], 1)
+    trendpoly = np.poly1d(trend)
+    
+    plt.plot(data['Defense'], trendpoly(data['Defense']), label="y={:.2f}x+{:.2f}".format(trend[0], trend[1]))
+    plt.legend() 
+    
+    plt.show()
 
 if __name__ == "__main__":
     year = "2013"
@@ -149,7 +177,7 @@ if __name__ == "__main__":
     
     data_years = [data_2013, data_2014, data_2015, data_2016, data_2017, data_2018]
     data = pd.concat(data_years)
-    get_qb_salary_vs_wins(data)
+#    get_qb_salary_vs_wins(data)
     
     data_2013_2 = remove_rookie_contracts("2013", data_2013)
     data_2014_2 = remove_rookie_contracts("2014", data_2014)
@@ -160,7 +188,11 @@ if __name__ == "__main__":
     
     data_years_2 = [data_2013_2, data_2014_2, data_2015_2, data_2016_2, data_2017_2, data_2018_2]
     data_2 = pd.concat(data_years_2)
-    get_qb_salary_vs_wins(data_2)
+#    get_qb_salary_vs_wins(data_2)
+    
+    get_offense_only(data)
+    get_defense_only(data)
+    
 
 
 
