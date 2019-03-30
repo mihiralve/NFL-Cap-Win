@@ -78,29 +78,38 @@ def get_qb_salary_vs_wins(data):
     plt.scatter(data['QB'], data['Wins'])
     plt.xlabel("QB Salary")
     plt.ylabel("Wins")
+    
+    trend = np.polyfit(data['QB'], data['Wins'], 1)
+    trendpoly = np.poly1d(trend)
+    
+    plt.plot(data['QB'], trendpoly(data['QB']), label="y={:.2f}x+{:.2f}".format(trend[0], trend[1]))
+    plt.legend() 
+    
     plt.show()
 
-year = "2013"
-data_2013 = get_data(year)
-
-year = "2014"
-data_2014 = get_data(year)
-
-year = "2015"
-data_2015 = get_data(year)
-
-year = "2016"
-data_2016 = get_data(year)
-
-year = "2017"
-data_2017 = get_data(year)
-
-year = "2018"
-data_2018 = get_data(year)
-
-data_years = [data_2013, data_2014, data_2015, data_2016, data_2017, data_2018]
-data = pd.concat(data_years)
-get_qb_salary_vs_wins(data)
+if __name__ == "__main__":
+    plt.figure()
+    year = "2013"
+    data_2013 = get_data(year)
+    
+    year = "2014"
+    data_2014 = get_data(year)
+    
+    year = "2015"
+    data_2015 = get_data(year)
+    
+    year = "2016"
+    data_2016 = get_data(year)
+    
+    year = "2017"
+    data_2017 = get_data(year)
+    
+    year = "2018"
+    data_2018 = get_data(year)
+    
+    data_years = [data_2013, data_2014, data_2015, data_2016, data_2017, data_2018]
+    data = pd.concat(data_years)
+    get_qb_salary_vs_wins(data)
 
 
 
