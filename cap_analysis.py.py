@@ -70,11 +70,12 @@ def get_data(year):
     afc_records = input_records(afc_filename)
     records = pd.concat([nfc_records, afc_records])
     data = data.merge(records, on='Team')
-    data.drop(['Team'], 1, inplace=True)
+#    data.drop(['Team'], 1, inplace=True)
     
     return data
 
 def get_qb_salary_vs_wins(data):
+    plt.figure()
     plt.scatter(data['QB'], data['Wins'])
     plt.xlabel("QB Salary")
     plt.ylabel("Wins")
@@ -86,9 +87,48 @@ def get_qb_salary_vs_wins(data):
     plt.legend() 
     
     plt.show()
+    
+def remove_rookie_contracts(year, data, remove=True):
+    rookies_2013 = ["Bills", "Jets", "Redskins", "Jaguars", 
+                    "Raiders", "Eagles", "Panthers", "Colts", 
+                    "Titans", "Vikings", "Texans", "Rams", "49ers",
+                    "Begals", "Browns", "Dolphins"]
+    rookies_2014 = ["Vikings", "Jaguars", "Titans", "Raiders"
+                    "Bills", "Jets", "Redskins", "Buccaneers"
+                    "Eagles", "Panthers", "Colts", "Dolphins"]
+    rookies_2015 = ["Buccaneers", "Titans", "Vikings", "Jaguars", 
+                    "Raiders", "Bills", "Broncos", "Redskins"]
+    rookies_2016 = ["Rams", "Buccaneers", "Browns", "Titans", 
+                    "Cowboys", "Eagles", "Jaguars", "Broncos",
+                    "Raiders"]
+    rookies_2017 = ["Browns", "Texans", "Bears", "Buccaneers", "Rams",
+                    "49ers", "Packers", "Titans", "Cowboys", "Eagles",
+                    "Colts", "Jaguars", "Jets", "Broncos"]
+    rookies_2018 = ["Ravens", "Cardinals", "Jets", "Bills", "49ers",
+                    "Browns", "Texans", "Chiefs", "Buccaneers", 
+                    "Bears", "Rams", "Jaguars", "Bengals", "Titans",
+                    "Cowboys", "Eagles"]
+    
+    rookies = {"2013": rookies_2013, "2014": rookies_2014, "2015": rookies_2015,
+               "2016": rookies_2016, "2017": rookies_2017, "2018": rookies_2018}
+    teams = []
+    
+    if remove:
+        for ind, row in data_2013.iterrows():
+            if row['Team'] not in rookies[year]:
+                teams.append(row)
+    else:
+        for ind, row in data_2013.iterrows():
+            if row['Team'] in rookies[year]:
+                teams.append(row)
+        
+    
+    df = pd.DataFrame()
+    df = df.append(teams)
+    
+    return df
 
 if __name__ == "__main__":
-    plt.figure()
     year = "2013"
     data_2013 = get_data(year)
     
@@ -110,6 +150,17 @@ if __name__ == "__main__":
     data_years = [data_2013, data_2014, data_2015, data_2016, data_2017, data_2018]
     data = pd.concat(data_years)
     get_qb_salary_vs_wins(data)
+    
+    data_2013_2 = remove_rookie_contracts("2013", data_2013)
+    data_2014_2 = remove_rookie_contracts("2014", data_2014)
+    data_2015_2 = remove_rookie_contracts("2015", data_2015)
+    data_2016_2 = remove_rookie_contracts("2016", data_2016)
+    data_2017_2 = remove_rookie_contracts("2017", data_2017)
+    data_2018_2 = remove_rookie_contracts("2018", data_2018)
+    
+    data_years_2 = [data_2013_2, data_2014_2, data_2015_2, data_2016_2, data_2017_2, data_2018_2]
+    data_2 = pd.concat(data_years_2)
+    get_qb_salary_vs_wins(data_2)
 
 
 
