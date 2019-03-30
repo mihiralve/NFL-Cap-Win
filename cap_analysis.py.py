@@ -74,7 +74,7 @@ def get_data(year):
     
     return data
 
-def get_qb_salary_vs_wins(data):
+def plot_qb_salary_vs_wins(data):
     plt.figure()
     plt.scatter(data['QB'], data['Wins'])
     plt.xlabel("QB Salary")
@@ -128,7 +128,7 @@ def remove_rookie_contracts(year, data, remove=True):
     
     return df
 
-def get_offense_only(data):
+def plot_offense_only(data):
     plt.figure()
     plt.scatter(data['Offense'], data['Wins'])
     plt.xlabel("Offensive Spending")
@@ -142,7 +142,7 @@ def get_offense_only(data):
     
     plt.show()
     
-def get_defense_only(data):
+def plot_defense_only(data):
     plt.figure()
     plt.scatter(data['Defense'], data['Wins'])
     plt.xlabel("Defensive Spending")
@@ -155,6 +155,63 @@ def get_defense_only(data):
     plt.legend() 
     
     plt.show()
+    
+def plot_OL(data):
+    plt.figure()
+    plt.scatter(data['OL'], data['Wins'])
+    plt.xlabel("Offensive Line Spending")
+    plt.ylabel("Wins")
+    
+    trend = np.polyfit(data['OL'], data['Wins'], 1)
+    trendpoly = np.poly1d(trend)
+    
+    plt.plot(data['OL'], trendpoly(data['OL']), label="y={:.2f}x+{:.2f}".format(trend[0], trend[1]))
+    plt.legend() 
+    
+    plt.show()
+    
+def plot_DL(data):
+    plt.figure()
+    plt.scatter(data['DL'], data['Wins'])
+    plt.xlabel("Defensive Line Spending")
+    plt.ylabel("Wins")
+    
+    trend = np.polyfit(data['DL'], data['Wins'], 1)
+    trendpoly = np.poly1d(trend)
+    
+    plt.plot(data['DL'], trendpoly(data['DL']), label="y={:.2f}x+{:.2f}".format(trend[0], trend[1]))
+    plt.legend() 
+    
+    plt.show()
+
+def plot_trenches(data):
+    plt.figure()
+    plt.scatter(data['OL']+data['DL'], data['Wins'])
+    plt.xlabel("Combined OL/DL Spending")
+    plt.ylabel("Wins")
+    
+    trend = np.polyfit(data['OL']+data['DL'], data['Wins'], 1)
+    trendpoly = np.poly1d(trend)
+    
+    plt.plot(data['OL']+data['DL'], trendpoly(data['OL']+data['DL']), label="y={:.2f}x+{:.2f}".format(trend[0], trend[1]))
+    plt.legend() 
+    
+    plt.show()
+
+def plot_position(data, position):
+    plt.figure()
+    plt.scatter(data[position], data['Wins'])
+    plt.xlabel(position +  " Spending")
+    plt.ylabel("Wins")
+    
+    trend = np.polyfit(data[position], data['Wins'], 1)
+    trendpoly = np.poly1d(trend)
+    
+    plt.plot(data[position], trendpoly(data[position]), label="y={:.2f}x+{:.2f}".format(trend[0], trend[1]))
+    plt.legend() 
+    
+    plt.show()
+
 
 if __name__ == "__main__":
     year = "2013"
@@ -177,7 +234,7 @@ if __name__ == "__main__":
     
     data_years = [data_2013, data_2014, data_2015, data_2016, data_2017, data_2018]
     data = pd.concat(data_years)
-#    get_qb_salary_vs_wins(data)
+#    plot_qb_salary_vs_wins(data)
     
     data_2013_2 = remove_rookie_contracts("2013", data_2013)
     data_2014_2 = remove_rookie_contracts("2014", data_2014)
@@ -188,11 +245,16 @@ if __name__ == "__main__":
     
     data_years_2 = [data_2013_2, data_2014_2, data_2015_2, data_2016_2, data_2017_2, data_2018_2]
     data_2 = pd.concat(data_years_2)
-#    get_qb_salary_vs_wins(data_2)
+#    plot_qb_salary_vs_wins(data_2)
     
-    get_offense_only(data)
-    get_defense_only(data)
+#    plot_offense_only(data)
+#    plot_defense_only(data)
     
+#    plot_OL(data)
+#    plot_DL(data)
+#    plot_trenches(data)
+    
+    plot_position
 
 
 
