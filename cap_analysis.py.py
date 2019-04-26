@@ -9,6 +9,10 @@ import numpy as np
 import pandas as pd
 import re
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn import metrics
 
 def input_cap(filename):
     lines = list(open(filename))
@@ -77,14 +81,14 @@ def get_data(year):
 def plot_qb_salary_vs_wins(data):
     plt.figure()
     plt.scatter(data['QB'], data['Wins'])
-    plt.xlabel("QB Salary")
+    plt.xlabel("QB Salary (% of Total Spending)")
     plt.ylabel("Wins")
     
     trend = np.polyfit(data['QB'], data['Wins'], 1)
     trendpoly = np.poly1d(trend)
     
     plt.plot(data['QB'], trendpoly(data['QB']), label="y={:.2f}x+{:.2f}".format(trend[0], trend[1]))
-    plt.title("Wins vs. Combined Veteran Contract Quarterback Spending")
+    plt.title("Wins vs. Quarterback Spending")
 #    plt.legend() 
     print(trendpoly)
     plt.show()
@@ -215,6 +219,49 @@ def plot_position(data, position):
     
     plt.show()
 
+def linearReg(data):
+    spending = data.copy()
+    spending = spending.drop(["Offense", "Defense", "Team", "Wins"], axis=1)
+    
+    wins = data["Wins"]
+    
+    spendingTrain, spendingTest, winsTrain, winsTest = train_test_split(spending, wins, test_size=0.0001)
+    
+    reg = LinearRegression(fit_intercept=False).fit(spendingTrain, winsTrain)
+#    reg = LinearRegression().fit(spending, wins)
+    
+#    winsPred = reg.predict(spendingTest)
+    
+#    print("Regression Model R^2 Score:")
+#    print(metrics.mean_absolute_error(np.asarray(winsTest), winsPred))
+    
+    cdf = pd.DataFrame(reg.coef_, spending.columns, columns=['Coefficients'])
+
+    
+    return cdf
+    
+def normalizeCap(data):
+    data['QB'] = data['QB']/(data['Offense']+data['Defense'])
+    data['RB'] = data['RB']/(data['Offense']+data['Defense'])
+    data['WR'] = data['WR']/(data['Offense']+data['Defense'])
+    data['TE'] = data['TE']/(data['Offense']+data['Defense'])
+    data['OL'] = data['OL']/(data['Offense']+data['Defense'])
+    
+    
+    
+    data['DL'] = data['DL']/(data['Offense']+data['Defense'])
+    data['LB'] = data['LB']/(data['Offense']+data['Defense'])
+    data['S'] = data['S']/(data['Offense']+data['Defense'])
+    data['CB'] = data['CB']/(data['Offense']+data['Defense'])
+        
+    offense = data['Offense'].copy()
+    defense = data['Defense'].copy()
+
+    
+    data['Offense'] = data['Offense']/(offense + defense)
+    data['Defense'] = data['Defense']/(offense + defense)
+    
+    return data
 
 if __name__ == "__main__":
     year = "2013"
@@ -236,41 +283,42 @@ if __name__ == "__main__":
     data_2018 = get_data(year)
     
 #   Create overall combined table from data from 2013-2018
-    data_years = [data_2013, data_2014, data_2015, data_2016, data_2017]#, data_2018]
+    data_years = [data_2013, data_2014, data_2015, data_2016, data_2017, data_2018]
     data = pd.concat(data_years)
 
 #   Plot all qb spending vs. wins
-#    plot_qb_salary_vs_wins(data)
+    plot_qb_salary_vs_wins(data)
+
     
-#    Remove teams specified above with rookie contract QBS in the remove_rookie_contracts function 
-#    data_2013_2 = remove_rookie_contracts("2013", data_2013)
-#    data_2014_2 = remove_rookie_contracts("2014", data_2014)
-#    data_2015_2 = remove_rookie_contracts("2015", data_2015)
-#    data_2016_2 = remove_rookie_contracts("2016", data_2016)
-#    data_2017_2 = remove_rookie_contracts("2017", data_2017)
-#    data_2018_2 = remove_rookie_contracts("2018", data_2018)
-#    
-#    data_years_2 = [data_2013_2, data_2014_2, data_2015_2, data_2016_2, data_2017_2, data_2018_2]
-#    data_2 = pd.concat(data_years_2)
-#    plot_qb_salary_vs_wins(data_2)
+    #Remove teams specified above with rookie contract QBS in the remove_rookie_contracts function 
+    data_2013_2 = remove_rookie_contracts("2013", data_2013)
+    data_2014_2 = remove_rookie_contracts("2014", data_2014)
+    data_2015_2 = remove_rookie_contracts("2015", data_2015)
+    data_2016_2 = remove_rookie_contracts("2016", data_2016)
+    data_2017_2 = remove_rookie_contracts("2017", data_2017)
+    data_2018_2 = remove_rookie_contracts("2018", data_2018)
     
-#    Reverse the remove_rookie_contrracs function and instead only keep teams with rookie contracts
-#    data_2013_2 = remove_rookie_contracts("2013", data_2013, False)
-#    data_2014_2 = remove_rookie_contracts("2014", data_2014, False)
-#    data_2015_2 = remove_rookie_contracts("2015", data_2015, False)
-#    data_2016_2 = remove_rookie_contracts("2016", data_2016, False)
-#    data_2017_2 = remove_rookie_contracts("2017", data_2017, False)
-#    data_2018_2 = remove_rookie_contracts("2018", data_2018, False)
-#    
-#    data_years_2 = [data_2013_2, data_2014_2, data_2015_2, data_2016_2, data_2017_2, data_2018_2]
-#    data_2 = pd.concat(data_years_2)
+    data_years_2 = [data_2013_2, data_2014_2, data_2015_2, data_2016_2, data_2017_2, data_2018_2]
+    data_2 = pd.concat(data_years_2)
+    plot_qb_salary_vs_wins(data_2)
+    
+    #Reverse the remove_rookie_contracts function and instead only keep teams with rookie contracts
+    data_2013_2 = remove_rookie_contracts("2013", data_2013, False)
+    data_2014_2 = remove_rookie_contracts("2014", data_2014, False)
+    data_2015_2 = remove_rookie_contracts("2015", data_2015, False)
+    data_2016_2 = remove_rookie_contracts("2016", data_2016, False)
+    data_2017_2 = remove_rookie_contracts("2017", data_2017, False)
+    data_2018_2 = remove_rookie_contracts("2018", data_2018, False)
+    
+    data_years_2 = [data_2013_2, data_2014_2, data_2015_2, data_2016_2, data_2017_2, data_2018_2]
+    data_2 = pd.concat(data_years_2)
 #    
 ##    Drop Jimmy G & the 49ers because he's a significant outlier
 ##    data_2 = data_2[data_2['QB'] != 38197259]
-#    plot_qb_salary_vs_wins(data_2)
+##    plot_qb_salary_vs_wins(data_2)
     
-#    plot_position(data, "Offense")
-#    plot_position(data, "Defense")
+    plot_position(data, "Offense")
+    plot_position(data, "Defense")
     
     plot_position(data, "QB")
     plot_position(data, "OL")
@@ -284,5 +332,6 @@ if __name__ == "__main__":
     plot_position(data, "S")
     plot_position(data, 'CB')
 
+    cdf = linearReg(data)
 
 
